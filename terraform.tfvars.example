@@ -1,0 +1,14 @@
+github_token = ""
+github_profile = "https://github.com/octocat"
+github_username = ""
+organizations = []
+include_private_repos = true
+max_repositories = 20
+max_items_per_section = 20
+output_file = "dashboard.html"
+aws_region = "us-east-1"
+aws_bucket_name = ""
+aws_force_destroy = false
+enable_lambda_auto_refresh = false
+lambda_schedule_expression = "rate(6 hours)"
+lambda_log_retention_days = 14

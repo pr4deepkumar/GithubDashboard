@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Dashboard</title>
+  <style>
+    :root {
+      --bg: #0c1018;
+      --card: #141b28;
+      --line: #23314c;
+      --text: #e6ecf7;
+      --muted: #9fb0cc;
+      --accent: #3dd4a7;
+      --link: #8ab7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 500px at 20% -10%, #22345d 0%, var(--bg) 55%);
+    }
+    .wrap {
+      width: min(1150px, 92vw);
+      margin: 24px auto 48px;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    h1, h2 { margin: 0; }
+    .subtle { color: var(--muted); font-size: 0.92rem; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 0;
+      margin-bottom: 0;
+      grid-auto-rows: 1fr;
+    }
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      object-fit: cover;
+      background: #0f1522;
+    }
+    .profile-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .profile-title a {
+      font-weight: 600;
+    }
+    .metric {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 12px;
+      height: 100%;
+    }
+    .metric .label { color: var(--muted); font-size: 0.78rem; }
+    .metric .value { margin-top: 6px; color: var(--accent); font-weight: 700; font-size: 1.35rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      grid-auto-rows: 1fr;
+    }
+    .charts {
+      margin-bottom: 0;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 12px;
+      min-height: 0;
+      height: 100%;
+    }
+    .full-span {
+      grid-column: 1 / -1;
+    }
+    .panel h2 {
+      font-size: 0.98rem;
+      margin-bottom: 10px;
+    }
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    li {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.01);
+    }
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    .meta {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 14px;
+    }
+    .chart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 180px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .chart-label {
+      color: var(--text);
+      font-size: 0.84rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chart-value {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .chart-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 0;
+      border: 1px solid var(--line);
+      background: #111a2b;
+      overflow: hidden;
+    }
+    .chart-fill {
+      height: 100%;
+      border-radius: 0;
+      background: linear-gradient(90deg, #2f9aff, #3dd4a7);
+    }
+    .pie-layout {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+    .pie {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+    }
+    .pie-hole {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: #0f1626;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 6px;
+    }
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .legend-row {
+      display: grid;
+      grid-template-columns: 14px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    @media (max-width: 920px) {
+      .summary { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+      .chart-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .pie-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="top">
+      <div>
+        <h1 id="title">GitHub Dashboard</h1>
+        <p class="subtle">Generated at ${generated_at}</p>
+      </div>
+    </section>
+    <section id="profile" class="profile-card"></section>
+    <section id="summary" class="summary"></section>
+    <section id="charts" class="grid charts"></section>
+    <section id="panels" class="grid"></section>
+  </main>
+
+  <script>
+    const dashboard = ${dashboard_json};
+
+    const summaryFields = [
+      ["Repos Listed", dashboard.summary.repositories],
+      ["Public Repos", dashboard.profile.public_repos],
+      ["Followers", dashboard.profile.followers],
+      ["Open PRs Authored", dashboard.summary.authored_prs],
+      ["Open Issues Authored", dashboard.summary.authored_issues],
+      ["Stars (Listed Repos)", dashboard.summary.repo_stars],
+    ];
+
+    const topLanguages = (dashboard.languages || []).map((x) => `$${x.name} ($${x.count})`).join(", ");
+    const topStarredRepos = [...(dashboard.recent_repositories || [])]
+      .sort((a, b) => (b.stars || 0) - (a.stars || 0))
+      .slice(0, 6)
+      .map((repo) => ({ label: repo.name, value: repo.stars || 0 }));
+    const languageBars = (dashboard.languages || []).map((x) => ({ label: x.name, value: x.count || 0 }));
+    const activityBars = [
+      { label: "Open PRs Authored", value: dashboard.summary.authored_prs || 0 },
+      { label: "PRs Requesting Review", value: dashboard.summary.review_requested_prs || 0 },
+      { label: "Assigned Issues", value: dashboard.summary.assigned_issues || 0 },
+      { label: "Open Issues Authored", value: dashboard.summary.authored_issues || 0 },
+    ];
+
+    const panels = [
+      {
+        title: "Recently Updated Repositories",
+        empty: "No repositories found.",
+        items: (dashboard.recent_repositories || []).slice(0, 3),
+        renderItem: (item) => `
+          <a href="$${item.url}" target="_blank" rel="noreferrer">$${item.name}</a>
+          <div class="meta">
+            <span>Updated: $${item.updated_at}</span>
+            <span>Stars: $${item.stars}</span>
+            <span>Open issues: $${item.open_issues}</span>
+            <span>Language: $${item.language || "n/a"}</span>
+            <span>$${item.visibility}</span>
+          </div>
+        `
+      },
+      {
+        title: "Open PRs Authored",
+        empty: "No open authored pull requests.",
+        items: dashboard.authored_prs,
+        renderItem: (item) => `
+          <a href="$${item.url}" target="_blank" rel="noreferrer">$${item.title}</a>
+          <div class="meta">
+            <span>$${item.repo}</span>
+            <span>Updated: $${item.updated_at}</span>
+          </div>
+        `
+      },
+      {
+        title: "PRs Requesting Review",
+        empty: "No review requests right now.",
+        items: dashboard.review_requested_prs,
+        renderItem: (item) => `
+          <a href="$${item.url}" target="_blank" rel="noreferrer">$${item.title}</a>
+          <div class="meta">
+            <span>$${item.repo}</span>
+            <span>Updated: $${item.updated_at}</span>
+          </div>
+        `
+      },
+      {
+        title: "Authored Open Issues",
+        empty: "No authored open issues.",
+        items: dashboard.authored_issues,
+        renderItem: (item) => `
+          <a href="$${item.url}" target="_blank" rel="noreferrer">$${item.title}</a>
+          <div class="meta">
+            <span>$${item.repo}</span>
+            <span>Updated: $${item.updated_at}</span>
+          </div>
+        `
+      },
+    ];
+
+    const titleNode = document.getElementById("title");
+    titleNode.textContent = `GitHub Analytics Dashboard for $${dashboard.username}`;
+
+    const profileNode = document.getElementById("profile");
+    profileNode.innerHTML = `
+      <img class="avatar" src="$${dashboard.profile.avatar_url}" alt="$${dashboard.username} avatar" />
+      <div>
+        <div class="profile-title">
+          <a href="$${dashboard.profile.html_url}" target="_blank" rel="noreferrer">$${dashboard.profile.name}</a>
+          <span class="subtle">@$${dashboard.username}</span>
+        </div>
+        <div class="meta">
+          $${dashboard.profile.company ? `<span>Company: $${dashboard.profile.company}</span>` : ""}
+          $${dashboard.profile.location ? `<span>Location: $${dashboard.profile.location}</span>` : ""}
+          <span>Following: $${dashboard.profile.following}</span>
+          $${topLanguages ? `<span>Top langs: $${topLanguages}</span>` : ""}
+        </div>
+        $${dashboard.profile.bio ? `<p class="subtle">$${dashboard.profile.bio}</p>` : ""}
+      </div>
+    `;
+
+    const summaryNode = document.getElementById("summary");
+    summaryFields.forEach(([label, value]) => {
+      const metric = document.createElement("div");
+      metric.className = "metric";
+      metric.innerHTML = `<div class="label">$${label}</div><div class="value">$${value}</div>`;
+      summaryNode.appendChild(metric);
+    });
+
+    const renderBarChart = (container, title, rows, emptyText) => {
+      const panel = document.createElement("article");
+      panel.className = "panel";
+      const heading = document.createElement("h2");
+      heading.textContent = title;
+      panel.appendChild(heading);
+
+      if (!rows || rows.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = emptyText;
+        panel.appendChild(empty);
+        container.appendChild(panel);
+        return panel;
+      }
+
+      const maxValue = Math.max(...rows.map((r) => Number(r.value || 0)), 1);
+      const list = document.createElement("div");
+      list.className = "chart-list";
+
+      rows.forEach((row) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "chart-row";
+
+        const label = document.createElement("div");
+        label.className = "chart-label";
+        label.textContent = row.label;
+
+        const track = document.createElement("div");
+        track.className = "chart-track";
+        const fill = document.createElement("div");
+        fill.className = "chart-fill";
+        fill.style.width = `$${Math.max(2, Math.round((Number(row.value || 0) / maxValue) * 100))}%`;
+        track.appendChild(fill);
+
+        const value = document.createElement("div");
+        value.className = "chart-value";
+        value.textContent = String(row.value || 0);
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(track);
+        wrapper.appendChild(value);
+        list.appendChild(wrapper);
+      });
+
+      panel.appendChild(list);
+      container.appendChild(panel);
+      return panel;
+    };
+
+    const renderPieChart = (container, title, rows, emptyText) => {
+      const panel = document.createElement("article");
+      panel.className = "panel";
+      const heading = document.createElement("h2");
+      heading.textContent = title;
+      panel.appendChild(heading);
+
+      if (!rows || rows.length === 0 || rows.every((r) => Number(r.value || 0) <= 0)) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = emptyText;
+        panel.appendChild(empty);
+        container.appendChild(panel);
+        return panel;
+      }
+
+      const positiveRows = rows.filter((r) => Number(r.value || 0) > 0);
+      const total = positiveRows.reduce((sum, row) => sum + Number(row.value || 0), 0);
+      const colors = ["#36a2ff", "#3dd4a7", "#ffd166", "#ff7b7b", "#9b8cff", "#2dd4bf", "#f59e0b"];
+
+      let current = 0;
+      const segments = positiveRows.map((row, idx) => {
+        const value = Number(row.value || 0);
+        const start = (current / total) * 100;
+        current += value;
+        const end = (current / total) * 100;
+        return `$${colors[idx % colors.length]} $${start}% $${end}%`;
+      });
+
+      const layout = document.createElement("div");
+      layout.className = "pie-layout";
+
+      const pie = document.createElement("div");
+      pie.className = "pie";
+      pie.style.background = "conic-gradient(" + segments.join(", ") + ")";
+
+      const hole = document.createElement("div");
+      hole.className = "pie-hole";
+      hole.textContent = "Total " + total;
+      pie.appendChild(hole);
+
+      const legend = document.createElement("div");
+      legend.className = "legend-list";
+      positiveRows.forEach((row, idx) => {
+        const value = Number(row.value || 0);
+        const pct = Math.round((value / total) * 100);
+
+        const legendRow = document.createElement("div");
+        legendRow.className = "legend-row";
+
+        const swatch = document.createElement("div");
+        swatch.className = "legend-swatch";
+        swatch.style.background = colors[idx % colors.length];
+
+        const label = document.createElement("div");
+        label.textContent = row.label;
+
+        const valueNode = document.createElement("div");
+        valueNode.textContent = value + " (" + pct + "%)";
+
+        legendRow.appendChild(swatch);
+        legendRow.appendChild(label);
+        legendRow.appendChild(valueNode);
+        legend.appendChild(legendRow);
+      });
+
+      layout.appendChild(pie);
+      layout.appendChild(legend);
+      panel.appendChild(layout);
+      container.appendChild(panel);
+      return panel;
+    };
+
+    const renderListPanel = (container, title, items, emptyText) => {
+      const panel = document.createElement("article");
+      panel.className = "panel";
+      const heading = document.createElement("h2");
+      heading.textContent = title;
+      panel.appendChild(heading);
+
+      if (!items || items.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = emptyText;
+        panel.appendChild(empty);
+        container.appendChild(panel);
+        return panel;
+      }
+
+      const list = document.createElement("ul");
+      items.forEach((item) => {
+        const row = document.createElement("li");
+        row.innerHTML = `
+          <a href="$${item.url}" target="_blank" rel="noreferrer">$${item.title}</a>
+          <div class="meta">
+            <span>$${item.repo}</span>
+            <span>Updated: $${item.updated_at}</span>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      panel.appendChild(list);
+      container.appendChild(panel);
+      return panel;
+    };
+
+    const applyFullSpanForOddGrid = (container) => {
+      const children = Array.from(container.children).filter((el) => el.classList.contains("panel"));
+      if (children.length % 2 === 1) {
+        children[children.length - 1].classList.add("full-span");
+      }
+    };
+
+    const chartsNode = document.getElementById("charts");
+    renderBarChart(chartsNode, "Top Repositories by Stars", topStarredRepos, "No repository star data.");
+    renderBarChart(chartsNode, "Open Work Activity", activityBars, "No activity data.");
+    renderPieChart(chartsNode, "Language Distribution", languageBars, "No language data.");
+    renderListPanel(chartsNode, "Assigned Work Issues", dashboard.assigned_issues, "No assigned issues.");
+    applyFullSpanForOddGrid(chartsNode);
+
+    const panelsNode = document.getElementById("panels");
+    panels.forEach((panel) => {
+      const article = document.createElement("article");
+      article.className = "panel";
+
+      const title = document.createElement("h2");
+      title.textContent = panel.title;
+      article.appendChild(title);
+
+      if (!panel.items || panel.items.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = panel.empty;
+        article.appendChild(empty);
+      } else {
+        const list = document.createElement("ul");
+        panel.items.forEach((item) => {
+          const row = document.createElement("li");
+          row.innerHTML = panel.renderItem(item);
+          list.appendChild(row);
+        });
+        article.appendChild(list);
+      }
+
+      panelsNode.appendChild(article);
+    });
+    applyFullSpanForOddGrid(panelsNode);
+  </script>
+</body>
+</html>
