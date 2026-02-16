@@ -36,9 +36,7 @@ GitHub user analytics dashboard generated as an HTML app using Terraform/OpenTof
 
 ## Screenshots
 
-Add screenshots to `docs/screenshots/` and keep these names for README rendering:
-- `dashboard-overview.png`
-- `dashboard-charts.png`
+![Dashboard Overview](docs/screenshots/dashboard-overview.png)
 
 ## Project Structure
 
